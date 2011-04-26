@@ -12,12 +12,14 @@ __PACKAGE__->config
 (
     appkit_name          => 'Configuration',
     appkit_icon          => '/static/images/config-small.png',
-    appkit_myclass       => 'SysInfo',  # FIXME: this looks wrong
+    appkit_myclass       => 'OpusVL::AppKitX::SysParams',  
     appkit_shared_module => 'Configuration',
 	path                 => 'adm/sysinfo',
 );
 
-sub auto :Private
+sub auto 
+    : Action
+    : AppKitFeature('System Parameters')
 {
 	my $self = shift;
 	my $c    = shift;
@@ -37,9 +39,14 @@ sub auto :Private
 	};
 }
 
+# FIXME: do we really want this to be Navigation Home?  I kind of suspect
+# we either want to give this app a less generic name or allow it to be merged
+# with other modules, in which case this navigation home could be a pain.
 sub list_params
 	: Path
 	: NavigationName('System Parameters')
+    : AppKitFeature('System Parameters')
+    : NavigationHome
 {
 	my $self = shift;
 	my $c    = shift;
@@ -51,6 +58,7 @@ sub set_param
 	: Path('set')
 	: Args(1)
 	: AppKitForm
+    : AppKitFeature('System Parameters')
 {
 	my $self  = shift;
 	my $c     = shift;
@@ -86,6 +94,7 @@ sub new_param
 	: Path('new')
 	: Args(0)
 	: AppKitForm
+    : AppKitFeature('System Parameters')
 {
 	my $self  = shift;
 	my $c     = shift;

@@ -31,7 +31,7 @@ override _build_config => sub {
         ],
     };
 
-    $config->{'Model::SysInfo'} = 
+    $config->{'Model::SysParams'} = 
     {
         connect_info => [
           'dbi:SQLite:' . TestApp->path_to('root','test_params.db'),
@@ -47,7 +47,7 @@ override _build_config => sub {
     $config->{'appkit_can_access_actionpaths'} = ['custom/custom'];
 
     # DEBUGIN!!!!
-    $config->{'appkit_can_access_everything'} = 1;
+    #$config->{'appkit_can_access_everything'} = 1;
     
     $config->{application_name} = 'AppKit TestApp';
     $config->{default_view}     = 'AppKitTT';

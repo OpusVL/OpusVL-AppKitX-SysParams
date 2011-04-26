@@ -12,6 +12,7 @@ elements:
           - Required
           - type: Regex
             regex: ^[0-9a-zA-Z_]+\.[0-9a-zA-Z\.-_]+$
+            message: Must be of format 'category.name'
  
       - type: Text
         label: Value

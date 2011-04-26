@@ -31,7 +31,7 @@ after 'setup_components' => sub {
     CatalystX::InjectComponent->inject(
         into      => $class,
         component => 'OpusVL::AppKitX::SysParams::Model::SysParams',
-        as        => 'Model::SysInfo'
+        as        => 'Model::SysParams'
     );
 };
 
