@@ -1,5 +1,7 @@
 cover_db
 META.yml
+tags
+*.swp
 Makefile
 blib
 inc
