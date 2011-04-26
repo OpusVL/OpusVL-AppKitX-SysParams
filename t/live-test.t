@@ -17,4 +17,39 @@ my $mech = Test::WWW::Mechanize::Catalyst->new;
 $mech->get_ok('http://localhost/', 'get main page');
 $mech->content_like(qr/AppKit TestApp/i, 'see if it has our text');
 
+$mech->content_like(qr/Access denied/i, 'check not logged in');
+$mech->submit_form(form_number => 1,
+    fields => {
+        username => 'appkitadmin',
+        password => 'password',
+        remember => 'remember',
+    },
+);
+$mech->content_like(qr/Welcome to AppKit TestApp/i, 'Check login good');
+
+$mech->get_ok('/adm/sysinfo');
+$mech->content_like(qr'System Parameters'i);
+$mech->follow_link_ok ({text_regex => qr/set/, url_regex => qr/new$/}, 'Lets add a setting');
+
+$mech->submit_form(form_number => 1,
+    fields => {
+        name => 'test',
+        value => 'validation',
+    },
+    button => 'submitbutton');
+$mech->content_like(qr'Must be of format 'i);
+$mech->submit_form(form_number => 1,
+    fields => {
+        name => 'test.value',
+        value => 'validation',
+    },
+    button => 'submitbutton');
+$mech->content_like(qr'System Parameter Successfully Created'i);
+
+# lets try to add it again to prove we can't.
+$mech->follow_link_ok ({text_regex => qr/set/, url_regex => qr/new$/}, 'Lets add a setting');
+
+# FIXME: need a delete function!
+# FIXME: need overwrite protection.
+
 done_testing;
