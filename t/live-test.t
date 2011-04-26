@@ -15,6 +15,6 @@ use ok 'TestApp';
 use Test::WWW::Mechanize::Catalyst 'TestApp';
 my $mech = Test::WWW::Mechanize::Catalyst->new;
 $mech->get_ok('http://localhost/', 'get main page');
-$mech->content_like(qr/it works/i, 'see if it has our text');
+$mech->content_like(qr/AppKit TestApp/i, 'see if it has our text');
 
 done_testing;
