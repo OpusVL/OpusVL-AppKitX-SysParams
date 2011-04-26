@@ -22,6 +22,17 @@ after 'setup_components' => sub {
     $class->config->{static}->{include_path} = $static_dirs;
     
     # .. inject your components here ..
+    CatalystX::InjectComponent->inject(
+        into      => $class,
+        component => 'OpusVL::AppKitX::SysParams::Controller::SysInfo',
+        as        => 'Controller::Modules::SysInfo'
+    );
+
+    CatalystX::InjectComponent->inject(
+        into      => $class,
+        component => 'OpusVL::AppKitX::SysParams::Model::SysParams',
+        as        => 'Model::SysInfo'
+    );
 };
 
 1;
@@ -41,6 +52,8 @@ OpusVL::AppKitX::SysParams -
 =head1 COPYRIGHT & LICENSE
 
 Copyright 2011 Opus Vision Limited, All Rights Reserved.
+
+This software is licensed according to the "IP Assignment Schedule" provided with the development project.
 
 =cut
 

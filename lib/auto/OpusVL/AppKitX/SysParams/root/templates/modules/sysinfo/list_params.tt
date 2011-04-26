@@ -1,0 +1,33 @@
+[% META appkitfeature_tablesorter = 1 %]
+
+<h1>System Parameters</h1>
+
+<div class="content_block">
+	<fieldset>
+		<legend>Parameters</legend>
+		<table class="tablesorter">
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Value</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				[% WHILE (param = sys_info.next) %]
+					<tr>
+						<td>[% param.name %]</td>	
+						<td>[% param.value %]</td>
+						<td align="center"><a href="[% urls.sys_info_set (param.name) %]">set</a></td>
+					</tr>
+				[% END %]
+				<tr>
+					<td><i>New Parameter</i></td>
+					<td><i>New Value</i></td>
+					<td align="center"><a href="[% urls.sys_info_new %]">set</a></td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+</div>
+

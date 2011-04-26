@@ -1,0 +1,31 @@
+
+indicator: submitbutton
+elements:
+
+  - type: Fieldset
+    elements:
+
+      - type: Text
+        label: Parameter *
+        name: name
+        constraints:
+          - Required
+          - type: Regex
+            regex: ^[0-9a-zA-Z_]+\.[0-9a-zA-Z\.-_]+$
+ 
+      - type: Text
+        label: Value
+        name: value
+
+  - type: Submit
+    name: submitbutton
+    value: Save
+    attributes:
+      class: submit submit_ok
+
+  - type: Submit
+    name: cancelbutton
+    value: Cancel
+    attributes:
+      class: submit submit_cancel
+

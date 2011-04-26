@@ -31,6 +31,13 @@ override _build_config => sub {
         ],
     };
 
+    $config->{'Model::SysInfo'} = 
+    {
+        connect_info => [
+          'dbi:SQLite:' . TestApp->path_to('root','test_params.db'),
+        ],
+    };
+
     # .. add static dir into the config for Static::Simple..
     my $static_dirs = $config->{static}->{include_path};
     unshift(@$static_dirs, TestApp->path_to('root'));
