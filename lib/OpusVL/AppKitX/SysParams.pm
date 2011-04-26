@@ -43,6 +43,8 @@ OpusVL::AppKitX::SysParams -
 
 =head1 DESCRIPTION
 
+UI Module for setting the SysParams.
+
 =head1 METHODS
 
 =head1 BUGS
