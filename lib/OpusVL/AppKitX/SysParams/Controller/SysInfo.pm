@@ -126,12 +126,12 @@ sub set_json_param
 
 	if ($form->submitted_and_valid)
 	{
+        my $success = 0;
         try
         {
             $c->stash->{sys_params}->set_json ($param => $form->param_value ('value'));
             $c->flash->{status_msg} = 'System Parameter Successfully Altered';
-            $c->res->redirect ($return_url);
-            $c->detach;
+            $success = 1;
         }
         catch
         {
@@ -139,6 +139,11 @@ sub set_json_param
             $form->get_field('value')->get_constraint({ type => 'Callback' })->force_errors(1);
             $form->process;
         };
+        if($success)
+        {
+            $c->res->redirect ($return_url);
+            $c->detach;
+        }
 	}
 }
 
