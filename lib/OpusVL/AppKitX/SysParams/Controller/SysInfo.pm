@@ -10,10 +10,11 @@ with 'OpusVL::AppKit::RolesFor::Controller::GUI';
 
 __PACKAGE__->config
 (
-    appkit_name          => 'Configuration',
+    appkit_name          => 'System Parameters',
     appkit_icon          => '/static/images/config-small.png',
     appkit_myclass       => 'OpusVL::AppKitX::SysParams',  
     appkit_shared_module => 'Configuration',
+    appkit_method_group  => 'Configuration',
 	path                 => 'adm/sysinfo',
 );
 
