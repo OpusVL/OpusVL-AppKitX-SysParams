@@ -7,11 +7,15 @@ elements:
 
       - type: Label
         label: Parameter
+        force_default: 1
         name: name
  
       - type: Text
         label: Value
         name: value
+        constraints:
+          type: Callback
+          message: 'Invalid value'
 
   - type: Submit
     name: submitbutton

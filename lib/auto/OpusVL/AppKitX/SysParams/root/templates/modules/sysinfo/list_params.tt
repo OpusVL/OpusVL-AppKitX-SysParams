@@ -16,18 +16,26 @@
 			<tbody>
 				[% WHILE (param = sys_info.next) %]
 					<tr>
-						<td>[% param.name %]</td>	
-						<td>[% param.value %]</td>
-						<td align="center"><a href="[% urls.sys_info_set (param.name) %]">set</a></td>
+						<td>[% param.name | html %]</td>	
+						<td>[% param.value | html %]</td>
+						<td>
+                        <ul class="control-container">
+                        <li class="control-edit-small">
+                        <ul class="dropdown">
+                        <li><a href="[% urls.sys_info_set (param.name) %]">Edit Setting</a>
+                        <li><a href="[% urls.sys_info_set_json (param.name) %]">Edit JSON</a>
+                        <li><a href="[% urls.sys_info_del (param.name) %]">Delete Setting</a>
+                        </ul>
+                        </li>
+                        </ul>
+                        </td>
 					</tr>
 				[% END %]
-				<tr>
-					<td><i>New Parameter</i></td>
-					<td><i>New Value</i></td>
-					<td align="center"><a href="[% urls.sys_info_new %]">set</a></td>
-				</tr>
 			</tbody>
 		</table>
 	</fieldset>
 </div>
 
+<div id="button_group_right">
+<a class="link_button link_button_add" href="[% urls.sys_info_new %]">Create a parameter</a>
+</div>

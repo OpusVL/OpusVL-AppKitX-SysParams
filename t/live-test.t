@@ -29,7 +29,7 @@ $mech->content_like(qr/Welcome to AppKit TestApp/i, 'Check login good');
 
 $mech->get_ok('/adm/sysinfo');
 $mech->content_like(qr'System Parameters'i);
-$mech->follow_link_ok ({text_regex => qr/set/, url_regex => qr/new$/}, 'Lets add a setting');
+$mech->follow_link_ok ({text_regex => qr/Create a parameter/i, url_regex => qr/new$/}, 'Lets add a setting');
 
 $mech->submit_form(form_number => 1,
     fields => {
@@ -46,10 +46,26 @@ $mech->submit_form(form_number => 1,
     button => 'submitbutton');
 $mech->content_like(qr'System Parameter Successfully Created'i);
 
-# lets try to add it again to prove we can't.
-$mech->follow_link_ok ({text_regex => qr/set/, url_regex => qr/new$/}, 'Lets add a setting');
+$mech->follow_link_ok ({text_regex => qr/Edit Setting/, url_regex => qr/test\.value$/}, 'Lets edit the setting');
+$mech->submit_form(form_number => 1,
+    fields => {
+        name => 'test.value',
+        value => 'altered',
+    },
+    button => 'submitbutton');
 
-# FIXME: need a delete function!
-# FIXME: need overwrite protection.
+$mech->follow_link_ok ({text_regex => qr/Edit JSON/, url_regex => qr/test\.value$/}, 'Lets edit the setting');
+$mech->submit_form(form_number => 1,
+    fields => {
+        name => 'test.value',
+        value => '[ 1, 2, 3]',
+    },
+    button => 'submitbutton');
+
+# lets try to add it again to prove we can't.
+$mech->follow_link_ok ({text_regex => qr/Delete/, url_regex => qr/test\.value$/}, 'Lets delete the setting');
+$mech->content_like(qr'sure'i);
+$mech->submit_form(form_number => 1, fields => {}, button => 'confirm');
+$mech->content_like(qr'Successfully Deleted'i);
 
 done_testing;
