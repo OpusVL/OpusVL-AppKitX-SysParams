@@ -36,6 +36,7 @@ sub auto
 	{
 		sys_info_list => sub { $c->uri_for ( $self->action_for ('list_params')      ) },
 		sys_info_set  => sub { $c->uri_for ( $self->action_for ('set_param'), shift ) },
+		sys_info_del  => sub { $c->uri_for ( $self->action_for ('del_param'), shift ) },
 		sys_info_new  => sub { $c->uri_for ( $self->action_for ('new_param') ) },
 	};
 }
@@ -89,6 +90,41 @@ sub set_param
 		$c->res->redirect ($return_url);
 		$c->detach;
 	}
+}
+
+sub del_param
+	: Path('del')
+	: Args(1)
+	: AppKitForm(delete.yml)
+    : AppKitFeature('System Parameters')
+{
+	my $self  = shift;
+	my $c     = shift;
+	my $param = shift;
+	my $form  = $c->stash->{form};
+	my $value = $c->model ('SysParams::SysInfo')->get ($param);
+
+	my $return_url = $c->stash->{urls}{sys_info_list}->();
+
+	if ($c->req->param ('cancel'))
+	{
+		$c->flash->{status_msg} = 'System Parameter Not Deleted';
+		$c->res->redirect ($return_url);
+		$c->detach;
+	}
+
+	if ($form->submitted_and_valid)
+	{
+		$c->model ('SysParams::SysInfo')->del ($param);
+		$c->flash->{status_msg} = 'System Parameter Successfully Deleted';
+		$c->res->redirect ($return_url);
+		$c->detach;
+	}
+    else
+    {
+        $c->stash->{value} = $value;
+        $c->stash->{name} = $param;
+    }
 }
 
 sub new_param
