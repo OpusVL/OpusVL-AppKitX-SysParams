@@ -16,8 +16,8 @@
 			<tbody>
 				[% WHILE (param = sys_info.next) %]
 					<tr>
-						<td>[% param.name %]</td>	
-						<td>[% param.value %]</td>
+						<td>[% param.name | html %]</td>	
+						<td>[% param.value | html %]</td>
 						<td align="center"><a href="[% urls.sys_info_set (param.name) %]">set</a></td>
 					</tr>
 				[% END %]
