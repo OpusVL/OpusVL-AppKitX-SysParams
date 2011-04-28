@@ -10,6 +10,10 @@ elements:
         name: name
         constraints:
           - Required
+          - type: DBIC::Unique
+            model: SysParams
+            resultset: SysInfo
+            message: This parameter already exists.
           - type: Regex
             regex: ^[0-9a-zA-Z_]+\.[0-9a-zA-Z\.-_]+$
             message: Must be of format 'category.name'
