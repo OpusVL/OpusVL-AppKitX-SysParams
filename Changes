@@ -1,2 +1,4 @@
+0.03    Added validation to prevent the inadvertent editing of parameters by 
+        entering the same setting name when adding a setting.
 0.02    Made UI use AppKit standards.  Added delete option and json set method.
 0.01    Initial release.
