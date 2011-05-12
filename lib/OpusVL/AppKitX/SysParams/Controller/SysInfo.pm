@@ -53,7 +53,6 @@ sub list_params
 	: Path
 	: NavigationName('System Parameters')
     : AppKitFeature('System Parameters')
-    : NavigationHome
 {
 	my $self = shift;
 	my $c    = shift;
