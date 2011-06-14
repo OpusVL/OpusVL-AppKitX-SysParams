@@ -9,6 +9,7 @@ all_from 'lib/OpusVL/AppKitX/SysParams.pm';
 
 requires 'Moose';
 requires 'namespace::autoclean';
+requires 'HTML::FormFu::Model::DBIC';
 
 build_requires 'Catalyst::Runtime' => '5.80015';
 build_requires 'Test::WWW::Mechanize::Catalyst';
