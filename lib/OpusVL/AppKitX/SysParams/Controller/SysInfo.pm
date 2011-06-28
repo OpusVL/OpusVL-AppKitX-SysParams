@@ -176,8 +176,8 @@ sub del_param
 	}
     else
     {
-        $c->stash->{value} = $value;
-        $c->stash->{name} = $param;
+        $c->stash->{param_value} = $value;
+        $c->stash->{param_name}  = $param;
     }
 }
 
@@ -190,7 +190,7 @@ sub new_param
 	my $self  = shift;
 	my $c     = shift;
 	my $form  = $c->stash->{form};
-
+	
 	my $return_url = $c->stash->{urls}{sys_info_list}->();
 
 	if ($c->req->param ('cancelbutton'))
