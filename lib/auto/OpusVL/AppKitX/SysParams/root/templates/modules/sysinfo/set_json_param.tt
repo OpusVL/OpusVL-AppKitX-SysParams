@@ -2,7 +2,7 @@
 
 <div class="content_block">
 <p>Note: the value will be expanded to a regular data structure when interpreted in code.</p>
-	[% form %]
+	[% form.render | none %]
 </div>
 
 
