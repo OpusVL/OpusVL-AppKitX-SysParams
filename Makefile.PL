@@ -21,11 +21,17 @@ author_requires 'Test::Pod' => '1.14';
 
 author_tests 't/author';
 
-resources repository => 'git://somewhere.com/myproject.git';
 
 if ($Module::Install::AUTHOR) {
     system("pod2text lib/OpusVL/AppKitX/SysParams.pm > README")
         and die $!;
 }
+resources (
+    repository => {
+        url => 'ssh://git/srv/git/OpusVL-AppKitX-SysParams',
+        type => 'git',
+    },
+);
+
 
 WriteAll();
