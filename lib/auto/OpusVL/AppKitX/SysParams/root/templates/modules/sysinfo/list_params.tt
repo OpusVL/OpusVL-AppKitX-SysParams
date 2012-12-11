@@ -23,6 +23,7 @@
                         <li class="control-edit-small">
                         <ul class="dropdown">
                         <li><a href="[% urls.sys_info_set(param.name) | none %]">Edit Setting</a>
+                        <li><a href="[% urls.sys_info_set_ta(param.name) | none %]">Edit Setting in Text Area</a>
                         <li><a href="[% urls.sys_info_set_json(param.name) | none %]">Edit JSON</a>
                         <li><a href="[% urls.sys_info_del(param.name) | none %]">Delete Setting</a>
                         </ul>

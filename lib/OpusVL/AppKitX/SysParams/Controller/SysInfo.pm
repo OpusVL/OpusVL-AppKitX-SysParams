@@ -40,6 +40,7 @@ sub auto
 	{
 		sys_info_list => sub { $c->uri_for ( $self->action_for ('list_params')      ) },
 		sys_info_set  => sub { $c->uri_for ( $self->action_for ('set_param'), shift ) },
+		sys_info_set_ta  => sub { $c->uri_for ( $self->action_for ('set_textarea_param'), shift ) },
 		sys_info_set_json  => sub { $c->uri_for ( $self->action_for ('set_json_param'), shift ) },
 		sys_info_del  => sub { $c->uri_for ( $self->action_for ('del_param'), shift ) },
 		sys_info_new  => sub { $c->uri_for ( $self->action_for ('new_param') ) },
@@ -58,6 +59,20 @@ sub list_params
 	my $c    = shift;
 	
 	$c->stash->{sys_info} = $c->model ('SysParams::SysInfo')->search_rs;
+}
+
+sub set_textarea_param
+	: Path('set_ta')
+	: Args(1)
+	: AppKitForm
+    : AppKitFeature('System Parameters')
+{
+	my $self  = shift;
+	my $c     = shift;
+	my $param = shift;
+
+    $c->stash->{template} = "modules/sysinfo/set_param.tt";
+    $self->set_param($c, $param);
 }
 
 sub set_param
