@@ -228,3 +228,36 @@ sub new_param
 
 1;
 
+
+=head1 NAME
+
+OpusVL::AppKitX::SysParams::Controller::SysInfo
+
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=head2 auto
+
+=head2 list_params
+
+=head2 set_textarea_param
+
+=head2 set_param
+
+=head2 set_json_param
+
+=head2 del_param
+
+=head2 new_param
+
+=head1 ATTRIBUTES
+
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2012 OpusVL.
+
+This software is licensed according to the "IP Assignment Schedule" provided with the development project.
+
+=cut
