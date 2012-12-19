@@ -4,7 +4,7 @@ use CatalystX::InjectComponent;
 use File::ShareDir qw/module_dir/;
 use namespace::autoclean;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 after 'setup_components' => sub {
     my $class = shift;
