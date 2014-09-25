@@ -17,9 +17,9 @@ after 'setup_components' => sub {
     }
    
     # .. add static dir into the config for Static::Simple..
-    my $static_dirs = $class->config->{static}->{include_path};
+    my $static_dirs = $class->config->{"Plugin::Static::Simple"}->{include_path};
     unshift(@$static_dirs, File::Spec->rel2abs(module_dir(__PACKAGE__) . '/root' ));
-    $class->config->{static}->{include_path} = $static_dirs;
+    $class->config->{"Plugin::Static::Simple"}->{include_path} = $static_dirs;
     
     # .. inject your components here ..
     CatalystX::InjectComponent->inject(
