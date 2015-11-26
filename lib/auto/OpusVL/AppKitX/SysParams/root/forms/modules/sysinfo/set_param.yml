@@ -9,6 +9,25 @@ elements:
         label: Parameter
         force_default: 1
         name: name
+
+      - type: Radiogroup
+        label: "Type"
+        name: type
+        options:
+          - value: 'string'
+            label: "Simple text"
+            label_attributes:
+              title: "Simple text"
+          - value: 'multi'
+            label: "Multi"
+            label_attributes:
+                title: "Multi-line text"
+          - value: 'json'
+            label: "Json"
+            label_attributes:
+                title: "Raw JSON"
+        attributes:
+          class: field field-type
  
       - type: Text
         label: Value
@@ -18,16 +37,6 @@ elements:
           message: 'Invalid value'
         attributes:
           class: field field-value
-
-      - type: Radiogroup
-        label: "Type"
-        name: type
-        options:
-          - [ 'string', 'String' ]
-          - [ 'multi', 'Multiline' ]
-          - [ 'json', 'JSON' ]
-        attributes:
-          class: field field-type
 
   - type: Submit
     name: submitbutton

@@ -106,6 +106,8 @@ p.sysinfo-comment {
     display: inline-block;
     width: 1em;
     margin-right: 0.4em;
+    /* ensure long labels we can't see don't adjust the layout unnecessarily */
+    white-space: nowrap;
 }
 
 .field.field-type input + label:before {
