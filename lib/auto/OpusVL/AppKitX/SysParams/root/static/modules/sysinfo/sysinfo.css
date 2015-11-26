@@ -1,0 +1,139 @@
+.sysinfo-group {
+    border: 1px solid #aaa;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+}
+
+.sysinfo-group .sysinfo-group {
+    border-right: none;
+}
+
+.sysinfo-group > .sysinfo-subpane {
+    padding: 0 0 0 2em;
+}
+
+.sysinfo-data {
+    padding-left: 2%;
+    padding-bottom: 0.4%;
+}
+
+.sysinfo-data > p {
+    display: inline-block;
+    margin: 0;
+}
+
+p.sysinfo-parameter {
+    min-width: 50%;
+}
+
+p.sysinfo-value {
+    min-width: 35%;
+}
+
+p.sysinfo-comment {
+    width: 100%;
+    margin-left: 20%;
+    padding-bottom: 1em;
+    padding-left: 2em;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+.sysinfo-group label {
+    font-size: 150%;
+    font-weight: bold;
+    width: initial;
+    display: block;
+    background-color: #F4EDFF;
+    padding: 0.5% 1%;
+    cursor: pointer;
+}
+
+.sysinfo-group label a.button {
+    float: right;
+    font-size: 55%;
+}
+
+.sysinfo-group input {
+    display: none;
+}
+
+.sysinfo-group input ~ label:before {
+    font-family: FontAwesome;
+    /* fa-plus-square-o */
+    /* content: "\f067"; */
+    /* fa-caret-right */
+    content: "\f0da";
+    font-size: 75%;
+    width: 0.5em;
+    display: inline-block;
+    padding-left: 0.3em;
+}
+
+.sysinfo-group input:checked ~ label:before {
+    font-family: FontAwesome;
+    /* fa-minus */
+    /* content: "\f068"; */
+    /* fa-caret-down */
+    content: "\f0d7";
+}
+
+.sysinfo-group input ~ label {
+    border-bottom: 0.2em solid #aaa;
+}
+.sysinfo-group input:checked ~ label {
+    border-bottom: none;
+}
+
+.sysinfo-group input ~ .sysinfo-subpane {
+    max-height: 0;
+    overflow-y: hidden;
+}
+
+.sysinfo-group input:checked ~ .sysinfo-subpane {
+    max-height: 10000px;
+    transition: max-height 1s ease-in;
+    transition-delay: 0s;
+
+}
+
+.field.field-type input {
+    display: none;
+}
+
+.field.field-type input + label {
+    visibility: hidden;
+    display: inline-block;
+    width: 1em;
+    margin-right: 0.4em;
+}
+
+.field.field-type input + label:before {
+    visibility: visible;
+    font-family: FontAwesome;
+    border: 1px solid #aaa;
+    border-radius: 20%;
+    display: inline-block;
+    width: 2em;
+    line-height: 2em;
+    text-align: center;
+    background: linear-gradient(to bottom, #feffff 0%,#ddf1f9 35%,#a0d8ef 100%);
+    cursor: pointer;
+}
+
+.field.field-type input:checked + label:before {
+    background: linear-gradient(to top, #feffff 0%,#ddf1f9 35%,#a0d8ef 100%);
+}
+
+/* for the edit page */
+.field.field-type input[value=string] + label:before {
+    content: "\f141";
+}
+
+.field.field-type input[value=multi] + label:before {
+    content: "\f036";
+}
+
+.field.field-type input[value=json] + label:before {
+    content: "\f121";
+}

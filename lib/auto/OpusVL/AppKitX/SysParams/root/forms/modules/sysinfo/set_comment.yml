@@ -1,33 +1,22 @@
-
 indicator: submitbutton
 elements:
 
   - type: Fieldset
     elements:
 
-      - type: Label
+      - type: Text
         label: Parameter
         force_default: 1
         name: name
+        attributes:
+          readonly: 1
  
-      - type: Text
-        label: Value
-        name: value
+      - type: Textarea
+        label: Comment
+        name: comment
         constraints:
           type: Callback
           message: 'Invalid value'
-        attributes:
-          class: field field-value
-
-      - type: Radiogroup
-        label: "Type"
-        name: type
-        options:
-          - [ 'string', 'String' ]
-          - [ 'multi', 'Multiline' ]
-          - [ 'json', 'JSON' ]
-        attributes:
-          class: field field-type
 
   - type: Submit
     name: submitbutton
@@ -40,4 +29,5 @@ elements:
     value: Cancel
     attributes:
       class: submit submit_cancel
+
 

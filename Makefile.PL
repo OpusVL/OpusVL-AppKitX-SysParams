@@ -12,6 +12,7 @@ requires 'namespace::autoclean';
 requires 'HTML::FormFu::Model::DBIC';
 requires 'OpusVL::AppKit';
 requires 'OpusVL::SysParams';
+requires 'JSON::MaybeXS';
 
 build_requires 'Catalyst::Runtime' => '5.80015';
 build_requires 'Test::WWW::Mechanize::Catalyst';

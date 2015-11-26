@@ -5,6 +5,7 @@ use Moose;
 use namespace::autoclean;
 use OpusVL::SysParams;
 use Try::Tiny;
+use JSON::MaybeXS;
 
 
 BEGIN { extends 'Catalyst::Controller::HTML::FormFu'; }
@@ -33,6 +34,9 @@ sub auto
         name => 'System Parameters',
         url  => $c->uri_for ($self->action_for ('list_params'))
     };
+
+    push @{$c->stash->{header}->{css}}, '/static/modules/sysinfo/sysinfo.css';
+    push @{$c->stash->{header}->{js}}, '/static/modules/sysinfo/sysinfo.js';
     my $schema = $c->model('SysParams')->schema;
     $c->stash->{sys_params} = OpusVL::SysParams->new({ schema => $schema });
 
@@ -44,6 +48,7 @@ sub auto
 		sys_info_set_json  => sub { $c->uri_for ( $self->action_for ('set_json_param'), shift ) },
 		sys_info_del  => sub { $c->uri_for ( $self->action_for ('del_param'), shift ) },
 		sys_info_new  => sub { $c->uri_for ( $self->action_for ('new_param') ) },
+        sys_info_comment => sub { $c->uri_for ($self->action_for ('set_comment'), shift ) },
 	};
 }
 
@@ -58,7 +63,12 @@ sub list_params
 	my $self = shift;
 	my $c    = shift;
 	
-	$c->stash->{sys_info} = $c->model ('SysParams::SysInfo')->search_rs;
+    my $grouped = $c->config->{'Model::SysParams'}->{group_sysparams};
+	$c->stash->{sys_info} = $c->model('SysParams::SysInfo')->list($grouped);
+
+    if ($grouped) {
+        $c->stash->{template} = 'modules/sysinfo/list_params_grouped.tt';
+    }
 }
 
 sub set_textarea_param
@@ -83,16 +93,19 @@ sub set_param
 {
 	my $self  = shift;
 	my $c     = shift;
-	my $param = shift;
+	my $name = shift;
 	my $form  = $c->stash->{form};
-	my $value = $c->model ('SysParams::SysInfo')->get ($param);
+    my $param = $c->model('SysParams::SysInfo')->find({
+        name => $name
+    });
 
 	my $return_url = $c->stash->{urls}{sys_info_list}->();
 
 	$form->default_values
 	({
-		name  => $param,
-		value => $value
+		name  => $name,
+        value => $param->value,
+        type  => 'string'
 	});
 
 	if ($c->req->param ('cancelbutton'))
@@ -102,13 +115,61 @@ sub set_param
 		$c->detach;
 	}
 
+    $c->stash->{name} = $name;
+    $c->stash->{value} = $param->value;
+    $c->stash->{value_raw} = $param->raw_value;
+
 	if ($form->submitted_and_valid)
 	{
-		$c->model ('SysParams::SysInfo')->set ($param => $form->param_value ('value'));
-		$c->flash->{status_msg} = 'System Parameter Successfully Altered';
-		$c->res->redirect ($return_url);
-		$c->detach;
+        my $type = $c->req->param('type');
+
+        my $update = {};
+        if ($type and $type eq 'json') {
+            $update->{value_raw} = $c->req->params->{value_json};
+        }
+        else {
+            $update->{value} = $c->req->params->{'value'};
+        }
+        my $updated_ok = try {
+            $param->update($update);
+            1;
+        }
+        catch {
+            $c->log->debug(__PACKAGE__ . '->set_json_param exception: ' . $_);
+            $form->get_field('value')->get_constraint({ type => 'Callback' })->force_errors(1);
+            $form->process;
+            0;
+        };
+        
+        if ($updated_ok) {
+            $c->flash->{status_msg} = 'System Parameter Successfully Altered';
+            $c->res->redirect($return_url);
+            $c->detach;
+        }
 	}
+
+    if ($form->submitted) {
+        my $type = $c->req->param('type');
+        if ($type and $type eq 'json') {
+            # If the value is either invalid JSON or a JSON object, we cannot
+            # represent it as a plain value.
+            $c->stash->{value} = 
+                try {
+                    JSON->new->allow_nonref->decode(
+                        $c->req->param('value_json')
+                    );
+                }
+                catch { '' };
+            $c->stash->{value} = '' if ref $c->stash->{value};
+            $c->stash->{value_raw} = $c->req->param('value_json')
+        }
+        else {
+            $c->stash->{value_raw} = JSON->new->allow_nonref->encode(
+                $c->req->param('value')
+            );
+            $c->stash->{value} = $c->req->param('value');
+        }
+    }
 }
 
 sub set_json_param
@@ -224,6 +285,36 @@ sub new_param
 		$c->res->redirect ($return_url);
 		$c->detach;
 	}
+}
+
+sub set_comment
+    : Path('set_comment')
+    : Args(1)
+    : AppKitForm
+    : AppKitFeature('System Parameters')
+{
+    my $self = shift;
+    my $c = shift;
+	my $name = shift;
+	my $form  = $c->stash->{form};
+    my $param = $c->model ('SysParams::SysInfo')->find_or_create({
+        name => $name
+    });
+
+    my $return_url = $c->stash->{urls}->{sys_info_list}->();
+
+	$form->default_values
+	({
+		name  => $name,
+        comment => $param->comment
+	});
+
+    if ($form->submitted_and_valid) {
+        $param->update({comment => $form->param_value('comment')});
+		$c->flash->{status_msg} = "Comment updated";
+		$c->res->redirect($return_url);
+		$c->detach;
+    }
 }
 
 1;

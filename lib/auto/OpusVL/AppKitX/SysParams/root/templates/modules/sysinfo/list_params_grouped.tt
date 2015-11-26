@@ -1,0 +1,77 @@
+<h1>System Parameters</h1>
+
+<div class="content_block">
+    [% PROCESS recursive_sysinfo
+        node=sys_info %]
+</div>
+
+[% BLOCK recursive_sysinfo %]
+    [%# I hate this sort of thing %]
+    [% IF node.children && groupname %]
+        <div class="sysinfo-group">
+            <input type="checkbox" 
+                class="sysinfo-showhide" 
+                id="checkbox-[% node.path %]"
+            />
+            <label
+                [% IF node.comment %]
+                    title="[% node.comment %]"
+                [% END %]
+                for="checkbox-[% node.path %]">
+                [% node.path %]
+                <a class="button icon-only"
+                    href="[% urls.sys_info_comment(node.path) %]"
+                    title="Edit comment">
+                    <i class="fa fa-comment"></i>
+                </a>
+            </label>
+    [% ELSE %]
+        <div>
+    [% END %]
+        <div class="sysinfo-subpane">
+            [% IF node.comment && ! node.value %]
+                <p class="sysinfo-comment">
+                    [% node.comment %]
+                </p>
+            [% END %]
+
+            [% IF node.value %]
+                <div class="sysinfo-data">
+                    <p class="sysinfo-parameter">[% node.path %]</p>
+                    <p class="sysinfo-value">[% node.value %]</p>
+                    <p class="sysinfo-buttons">
+                        <a class="button icon-only" 
+                            href="[% urls.sys_info_set(node.path) | none %]" 
+                            title="Edit Setting">
+                            <i class="fa fa-cog"></i>
+                        </a>
+                        <a class="button icon-only" 
+                            href="[% urls.sys_info_del(node.path) | none %]"
+                            title="Delete Setting">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                        <a class="button icon-only"
+                            href="[% urls.sys_info_comment(node.path) %]"
+                            title="Edit comment">
+                            <i class="fa fa-comment"></i>
+                        </a>
+                    </p>
+
+                    [% IF node.comment %]
+                        <p class="sysinfo-comment">
+                            [% node.comment %]
+                        </p>
+                    [% END %]
+                </div>
+            [% END %]
+            [% FOREACH pair IN node.children %]
+                [% PROCESS recursive_sysinfo
+                    node=pair.value, groupname=pair.key %]
+            [% END %]
+        </div>
+    </div>
+[% END %]
+
+<div id="button_group_right">
+<a class="link_button link_button_add" href="[% urls.sys_info_new %]">Create a parameter</a>
+</div>
