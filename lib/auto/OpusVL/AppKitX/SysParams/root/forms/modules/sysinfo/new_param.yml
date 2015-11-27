@@ -22,12 +22,21 @@ elements:
         label: Value
         name: value
 
-      - type: RadioGroup
+      - type: Radiogroup
         name: type
         options:
-          - [ 'string', 'String' ]
-          - [ 'multi', 'Multiline' ]
-          - [ 'json', 'JSON' ]
+          - value: 'string'
+            label: "Simple text"
+            label_attributes:
+              title: "Simple text"
+          - value: 'multi'
+            label: "Multi"
+            label_attributes:
+                title: "Multi-line text"
+          - value: 'json'
+            label: "Json"
+            label_attributes:
+                title: "Raw JSON"
 
   - type: Submit
     name: submitbutton
