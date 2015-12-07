@@ -31,15 +31,15 @@ $mech->get_ok('/adm/sysinfo');
 $mech->content_like(qr'System Parameters'i);
 $mech->follow_link_ok ({text_regex => qr/Create a parameter/i, url_regex => qr/new$/}, 'Lets add a setting');
 
-$mech->submit_form(form_number => 1,
-    fields => {
+$mech->submit_form(
+    with_fields => {
         name => 'test',
         value => 'validation',
     },
     button => 'submitbutton');
 $mech->content_like(qr'Must be of format 'i);
-$mech->submit_form(form_number => 1,
-    fields => {
+$mech->submit_form(
+    with_fields => {
         name => 'test.value',
         value => 'validation',
     },
@@ -47,32 +47,30 @@ $mech->submit_form(form_number => 1,
 $mech->content_like(qr'System Parameter Successfully Created'i);
 
 $mech->follow_link_ok ({text_regex => qr/Edit Setting/, url_regex => qr/test\.value$/}, 'Lets edit the setting');
-$mech->submit_form(form_number => 1,
-    fields => {
-        name => 'test.value',
+$mech->submit_form(
+    with_fields => {
         value => 'altered',
     },
     button => 'submitbutton');
 
 $mech->follow_link_ok ({text_regex => qr/Edit JSON/, url_regex => qr/test\.value$/}, 'Lets edit the setting');
-$mech->submit_form(form_number => 1,
-    fields => {
-        name => 'test.value',
+$mech->submit_form(
+    with_fields => {
         value => '[ 1, 2, 3]',
     },
     button => 'submitbutton');
 
 # lets try to add it again to prove we can't.
 $mech->follow_link_ok ({text_regex => qr/Create a parameter/i, url_regex => qr/new$/}, 'Lets add a setting');
-$mech->submit_form(form_number => 1,
-    fields => {
+$mech->submit_form(
+    with_fields => {
         name => 'test.value',
         value => 'validation',
     },
     button => 'submitbutton');
 $mech->content_like(qr'already exists'i);
-$mech->submit_form(form_number => 1,
-    fields => {
+$mech->submit_form(
+    with_fields => {
         name => 'bad.value',
         value => 'validation',
     },
@@ -80,7 +78,7 @@ $mech->submit_form(form_number => 1,
 
 $mech->follow_link_ok ({text_regex => qr/Delete/, url_regex => qr/test\.value$/}, 'Lets delete the setting');
 $mech->content_like(qr'sure'i);
-$mech->submit_form(form_number => 1, fields => {}, button => 'confirm');
+$mech->submit_form(with_fields => {confirm => 'Yes'}, button => 'confirm');
 $mech->content_like(qr'Successfully Deleted'i);
 
 done_testing;
