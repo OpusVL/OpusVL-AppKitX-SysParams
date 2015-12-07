@@ -45,6 +45,7 @@ $mech->submit_form(
     },
     button => 'submitbutton');
 $mech->content_like(qr'System Parameter Successfully Created'i);
+$mech->content_like(qr'validation'i, 'Check value is visible');
 
 $mech->follow_link_ok ({text_regex => qr/Edit Setting/, url_regex => qr/test\.value$/}, 'Lets edit the setting');
 $mech->submit_form(
@@ -59,7 +60,7 @@ $mech->submit_form(
         value => '[ 1, 2, 3]',
     },
     button => 'submitbutton');
-
+$mech->content_like(qr'1\s*,\s*2,\s*3'i, 'Check value is visible');
 # lets try to add it again to prove we can't.
 $mech->follow_link_ok ({text_regex => qr/Create a parameter/i, url_regex => qr/new$/}, 'Lets add a setting');
 $mech->submit_form(
@@ -78,6 +79,7 @@ $mech->submit_form(
 
 $mech->follow_link_ok ({text_regex => qr/Delete/, url_regex => qr/test\.value$/}, 'Lets delete the setting');
 $mech->content_like(qr'sure'i);
+$mech->content_like(qr'1\s*,\s*2,\s*3'i, 'Check value is visible');
 $mech->submit_form(with_fields => {confirm => 'Yes'}, button => 'confirm');
 $mech->content_like(qr'Successfully Deleted'i);
 
