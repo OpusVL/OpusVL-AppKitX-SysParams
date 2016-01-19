@@ -6,6 +6,7 @@ use Module::Install::AuthorTests;
 
 name 'OpusVL-AppKitX-SysParams';
 all_from 'lib/OpusVL/AppKitX/SysParams.pm';
+license 'perl';
 
 requires 'Moose';
 requires 'namespace::autoclean';
