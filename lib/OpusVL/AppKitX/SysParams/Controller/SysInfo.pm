@@ -48,6 +48,7 @@ sub auto
 		sys_info_set_json  => sub { $c->uri_for ( $self->action_for ('set_json_param'), shift ) },
 		sys_info_del  => sub { $c->uri_for ( $self->action_for ('del_param'), shift ) },
 		sys_info_new  => sub { $c->uri_for ( $self->action_for ('new_param') ) },
+        sys_info_comment => sub { $c->uri_for ($self->action_for ('set_comment'), shift ) },
 	};
 }
 
@@ -279,6 +280,36 @@ sub new_param
 		$c->res->redirect ($return_url);
 		$c->detach;
 	}
+}
+
+sub set_comment
+    : Path('set_comment')
+    : Args(1)
+    : AppKitForm
+    : AppKitFeature('System Parameters')
+{
+    my $self = shift;
+    my $c = shift;
+	my $name = shift;
+	my $form  = $c->stash->{form};
+    my $param = $c->model ('SysParams::SysInfo')->find_or_create({
+        name => $name
+    });
+
+    my $return_url = $c->stash->{urls}->{sys_info_list}->();
+
+	$form->default_values
+	({
+		name  => $name,
+        comment => $param->comment
+	});
+
+    if ($form->submitted_and_valid) {
+        $param->update({comment => $form->param_value('comment')});
+		$c->flash->{status_msg} = "Comment updated";
+		$c->res->redirect($return_url);
+		$c->detach;
+    }
 }
 
 1;
