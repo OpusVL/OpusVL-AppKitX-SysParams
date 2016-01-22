@@ -81,8 +81,7 @@ sub list_params
                 $node->{path} ||= join '.', grep {$_} $path, $name;
             }
 
-            $node->{value}   = $setting->value;
-            $node->{comment} = $setting->comment;
+            $node->{param}   = $setting;
         }
 
         $c->stash->{sys_info} = $groups;

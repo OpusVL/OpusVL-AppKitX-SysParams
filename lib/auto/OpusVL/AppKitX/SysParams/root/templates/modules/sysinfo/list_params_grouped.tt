@@ -14,8 +14,8 @@
                 id="checkbox-[% node.path %]"
             />
             <label
-                [% IF node.comment %]
-                    title="[% node.comment %]"
+                [% IF node.param.comment %]
+                    title="[% node.param.comment %]"
                 [% END %]
                 for="checkbox-[% node.path %]">
                 [% node.path %]
@@ -29,16 +29,40 @@
         <div>
     [% END %]
         <div class="sysinfo-subpane">
-            [% IF node.comment && ! node.value %]
+            [% IF node.param.comment && ! node.value %]
                 <p class="sysinfo-comment">
-                    [% node.comment %]
+                    [% node.param.comment %]
                 </p>
             [% END %]
 
-            [% IF node.value %]
+            [% IF node.param.value %]
                 <div class="sysinfo-data">
-                    <p class="sysinfo-parameter">[% node.path %]</p>
-                    <p class="sysinfo-value">[% node.value %]</p>
+                    [% IF node.label %]
+                        <p class="sysinfo-parameter">[% node.param.label %]
+                            <span class="incidental">[% node.path %]</span>
+                        </p>
+                    [% ELSE %]
+                        <p class="sysinfo-parameter">[% node.path %]</p>
+                    [% END %]
+
+                    [% IF node.param.data_type == 'array' %]
+                        <div class="sysinfo-value">
+                            <ul>
+                                [% FOR i IN node.param.decoded_value %]
+                                    <li>[% i %]</li>
+                                [% END %]
+                            </ul>
+                        </div>
+                    [% ELSIF node.param.data_type == 'object' %]
+                        <p class="sysinfo-value">
+                            [% node.param.value %]
+                        </p>
+                    [% ELSE %]
+                        <p class="sysinfo-value">
+                            [% node.param.convert_to('textarea') %]
+                        </p>
+                    [% END %]
+
                     <p class="sysinfo-buttons">
                         <a class="button icon-only" 
                             href="[% urls.sys_info_set(node.path) | none %]" 
@@ -49,11 +73,6 @@
                             href="[% urls.sys_info_del(node.path) | none %]"
                             title="Delete Setting">
                             <i class="fa fa-trash"></i>
-                        </a>
-                        <a class="button icon-only"
-                            href="[% urls.sys_info_comment(node.path) %]"
-                            title="Edit comment">
-                            <i class="fa fa-comment"></i>
                         </a>
                     </p>
 

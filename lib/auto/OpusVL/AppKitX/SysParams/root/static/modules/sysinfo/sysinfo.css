@@ -17,16 +17,25 @@
     padding-bottom: 0.4%;
 }
 
-.sysinfo-data > p {
+.sysinfo-data > p, .sysinfo-data > div {
     display: inline-block;
     margin: 0;
+    vertical-align: top;
+}
+
+.sysinfo-data ul {
+    margin: 0 0 0.8em -2.1em;
+}
+
+.sysinfo-buttons {
+    text-align: right;
 }
 
 p.sysinfo-parameter {
     min-width: 50%;
 }
 
-p.sysinfo-value {
+.sysinfo-value {
     min-width: 35%;
 }
 
@@ -97,6 +106,11 @@ p.sysinfo-comment {
 
 }
 
+span.field-value input.array-value:not(:first-child) {
+    /* display: inline-block; */
+    margin-left: 181px;
+}
+
 .field.field-type input {
     display: none;
 }
@@ -106,7 +120,6 @@ p.sysinfo-comment {
     display: inline-block;
     width: 1em;
     margin-right: 0.4em;
-    /* ensure long labels we can't see don't adjust the layout unnecessarily */
     white-space: nowrap;
 }
 
@@ -128,14 +141,23 @@ p.sysinfo-comment {
 }
 
 /* for the edit page */
-.field.field-type input[value=string] + label:before {
-    content: "\f141";
+.field.field-type input[value=text] + label:before {
+    content: "\f031";
 }
 
-.field.field-type input[value=multi] + label:before {
-    content: "\f036";
+.field.field-type input[value=textarea] + label:before {
+    content: "\f039";
 }
 
-.field.field-type input[value=json] + label:before {
-    content: "\f121";
+.field.field-type input[value=array] + label:before {
+    content: "\f0cb";
+}
+
+.field.field-type input[value=boolean] + label:before {
+    content: "\f046";
+}
+
+.field.field-type input[value=object] + label:before {
+    font-weight: bold;
+    content: '{}';
 }
