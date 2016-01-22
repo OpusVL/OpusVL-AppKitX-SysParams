@@ -6,7 +6,7 @@ use namespace::autoclean;
 use OpusVL::SysParams;
 use Try::Tiny;
 use JSON::MaybeXS;
-
+use List::UtilsBy qw/zip_by/;
 
 BEGIN { extends 'Catalyst::Controller::HTML::FormFu'; }
 with 'OpusVL::AppKit::RolesFor::Controller::GUI';
@@ -48,7 +48,6 @@ sub auto
 		sys_info_set_json  => sub { $c->uri_for ( $self->action_for ('set_json_param'), shift ) },
 		sys_info_del  => sub { $c->uri_for ( $self->action_for ('del_param'), shift ) },
 		sys_info_new  => sub { $c->uri_for ( $self->action_for ('new_param') ) },
-        sys_info_comment => sub { $c->uri_for ($self->action_for ('set_comment'), shift ) },
 	};
 }
 
@@ -64,9 +63,29 @@ sub list_params
 	my $c    = shift;
 	
     my $grouped = $c->config->{'Model::SysParams'}->{group_sysparams};
-	$c->stash->{sys_info} = $c->model('SysParams::SysInfo')->list($grouped);
+	$c->stash->{sys_info} = $c->model('SysParams::SysInfo')->ordered;
 
     if ($grouped) {
+        my $groups = {};
+        for my $setting ($c->stash->{sys_info}->all) {
+            my @path = split /\./, $setting->name;
+            my $node = $groups;
+
+            while (@path) {
+                my $name = shift @path;
+                my $path = $node->{path} || '';
+                $node->{children}->{$name} //= {};
+
+                $node = $node->{children}->{$name};
+                $node->{path} ||= join '.', grep {$_} $path, $name;
+            }
+
+            $node->{value}   = $setting->value;
+            $node->{comment} = $setting->comment;
+        }
+
+        $c->stash->{sys_info} = $groups;
+    
         $c->stash->{template} = 'modules/sysinfo/list_params_grouped.tt';
     }
 }
@@ -99,13 +118,33 @@ sub set_param
         name => $name
     });
 
+    # this for ordering purposes.
+    my $data_types = $c->model('SysParams::SysInfo')
+        ->result_source
+        ->column_info('data_type')
+        ->{extra}
+        ->{list};
+
+    my %data_type_options = zip_by { @_ }
+        $data_types,
+        $c->model('SysParams::SysInfo')->result_source->column_info('data_type')->{extra}->{labels}
+    ;
+    my %actual_options = map { $_ => $data_type_options{$_} } @{ $param->viable_type_conversions };
+
+    $form->get_all_element({ name => 'data_type' })->options([
+        map { [$_ => $actual_options{$_}] } grep { exists $actual_options{$_} } @$data_types
+    ]);
+    $form->process;
+
 	my $return_url = $c->stash->{urls}{sys_info_list}->();
 
 	$form->default_values
 	({
 		name  => $name,
-        value => $param->value,
-        type  => 'string'
+        value => $param->decoded_value,
+        label => $param->label,
+        comment => $param->comment,
+        data_type => $param->data_type,
 	});
 
 	if ($c->req->param ('cancelbutton'))
@@ -116,60 +155,15 @@ sub set_param
 	}
 
     $c->stash->{name} = $name;
-    $c->stash->{value} = $param->value;
-    $c->stash->{value_raw} = $param->raw_value;
+    $c->stash->{param} = $param;
 
 	if ($form->submitted_and_valid)
 	{
-        my $type = $c->req->param('type');
-
-        my $update = {};
-        if ($type and $type eq 'json') {
-            $update->{value_raw} = $c->req->params->{value_json};
-        }
-        else {
-            $update->{value} = $c->req->params->{'value'};
-        }
-        my $updated_ok = try {
-            $param->update($update);
-            1;
-        }
-        catch {
-            $c->log->debug(__PACKAGE__ . '->set_json_param exception: ' . $_);
-            $form->get_field('value')->get_constraint({ type => 'Callback' })->force_errors(1);
-            $form->process;
-            0;
-        };
-        
-        if ($updated_ok) {
-            $c->flash->{status_msg} = 'System Parameter Successfully Altered';
-            $c->res->redirect($return_url);
-            $c->detach;
-        }
+		$c->model ('SysParams::SysInfo')->set ($param => $form->param_value ('value'));
+		$c->flash->{status_msg} = 'System Parameter Successfully Altered';
+		$c->res->redirect ($return_url);
+		$c->detach;
 	}
-
-    if ($form->submitted) {
-        my $type = $c->req->param('type');
-        if ($type and $type eq 'json') {
-            # If the value is either invalid JSON or a JSON object, we cannot
-            # represent it as a plain value.
-            $c->stash->{value} = 
-                try {
-                    JSON->new->allow_nonref->decode(
-                        $c->req->param('value_json')
-                    );
-                }
-                catch { '' };
-            $c->stash->{value} = '' if ref $c->stash->{value};
-            $c->stash->{value_raw} = $c->req->param('value_json')
-        }
-        else {
-            $c->stash->{value_raw} = JSON->new->allow_nonref->encode(
-                $c->req->param('value')
-            );
-            $c->stash->{value} = $c->req->param('value');
-        }
-    }
 }
 
 sub set_json_param
@@ -285,36 +279,6 @@ sub new_param
 		$c->res->redirect ($return_url);
 		$c->detach;
 	}
-}
-
-sub set_comment
-    : Path('set_comment')
-    : Args(1)
-    : AppKitForm
-    : AppKitFeature('System Parameters')
-{
-    my $self = shift;
-    my $c = shift;
-	my $name = shift;
-	my $form  = $c->stash->{form};
-    my $param = $c->model ('SysParams::SysInfo')->find_or_create({
-        name => $name
-    });
-
-    my $return_url = $c->stash->{urls}->{sys_info_list}->();
-
-	$form->default_values
-	({
-		name  => $name,
-        comment => $param->comment
-	});
-
-    if ($form->submitted_and_valid) {
-        $param->update({comment => $form->param_value('comment')});
-		$c->flash->{status_msg} = "Comment updated";
-		$c->res->redirect($return_url);
-		$c->detach;
-    }
 }
 
 1;

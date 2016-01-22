@@ -6,7 +6,6 @@ use Module::Install::AuthorTests;
 
 name 'OpusVL-AppKitX-SysParams';
 all_from 'lib/OpusVL/AppKitX/SysParams.pm';
-license 'perl';
 
 requires 'Moose';
 requires 'namespace::autoclean';
@@ -14,6 +13,8 @@ requires 'HTML::FormFu::Model::DBIC';
 requires 'OpusVL::AppKit';
 requires 'OpusVL::SysParams';
 requires 'JSON::MaybeXS';
+requires 'List::UtilsBy';
+requires 'Data::Elem';
 
 build_requires 'Catalyst::Runtime' => '5.80015';
 build_requires 'Test::WWW::Mechanize::Catalyst';
