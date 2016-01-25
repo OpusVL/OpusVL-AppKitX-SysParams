@@ -15,17 +15,27 @@
 			</thead>
 			<tbody>
 				[% WHILE (param = sys_info.next) %]
+                    [% UNLESS param.value; NEXT; END %]
 					<tr>
 						<td>[% param.name | html %]</td>	
-						<td>[% param.value | html %]</td>
+						<td>
+                            [% IF (param.data_type == 'object') %]
+                                <span class="preformatted">
+                                    [%- pretty_json(param.decoded_value) -%]
+                                </span>
+                            [% ELSIF (param.data_type == 'array') %]
+                                <ul>
+                                    [% FOR item IN param.decoded_value %]
+                                        <li>[% item %]</li>
+                                    [% END %]
+                                </ul>
+                            [% ELSE; param.convert_to('textarea'); END %]</td>
 						<td>
                         <ul class="control-container">
                         <li class="control-edit-small">
                         <ul class="dropdown">
-                        <li><a href="[% urls.sys_info_set(param.name) | none %]">Edit Setting</a>
-                        <li><a href="[% urls.sys_info_set_ta(param.name) | none %]">Edit Setting in Text Area</a>
-                        <li><a href="[% urls.sys_info_set_json(param.name) | none %]">Edit JSON</a>
-                        <li><a href="[% urls.sys_info_del(param.name) | none %]">Delete Setting</a>
+                        <li><a href="[% urls.sys_info_set(param.name) | none %]">Edit</a>
+                        <li><a href="[% urls.sys_info_del(param.name) | none %]">Delete</a>
                         </ul>
                         </li>
                         </ul>

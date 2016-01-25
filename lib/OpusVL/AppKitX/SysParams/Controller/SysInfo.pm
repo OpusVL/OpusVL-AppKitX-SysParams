@@ -87,10 +87,11 @@ sub list_params
         $c->stash->{sys_info} = $groups;
     
         $c->stash->{template} = 'modules/sysinfo/list_params_grouped.tt';
-        $c->stash->{pretty_json} = sub {
-            JSON->new->pretty->ascii(0)->encode($_[0]);
-        };
     }
+
+    $c->stash->{pretty_json} = sub {
+        JSON->new->pretty->ascii(0)->encode($_[0]);
+    };
 }
 
 sub set_param
