@@ -39,6 +39,10 @@ p.sysinfo-parameter {
     min-width: 35%;
 }
 
+.sysinfo-value.preformatted {
+    white-space: pre;
+}
+
 p.sysinfo-comment {
     width: 100%;
     margin-left: 20%;

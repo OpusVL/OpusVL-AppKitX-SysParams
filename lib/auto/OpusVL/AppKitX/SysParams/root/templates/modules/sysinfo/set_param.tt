@@ -10,7 +10,9 @@
             CATCH;
             END;
         %]</textarea>
-        <textarea name="value_json" class="js-value-raw">[% param.value %]</textarea>
+        <textarea name="value_json" class="js-value-raw">
+            [%- pretty_json(param.decoded_value) -%]
+        </textarea>
         <input type="text" name="value" class="js-value-text" value="[%
             TRY;
             param.convert_to('text');

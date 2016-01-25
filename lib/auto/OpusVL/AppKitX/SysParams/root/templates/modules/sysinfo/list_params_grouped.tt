@@ -54,8 +54,8 @@
                             </ul>
                         </div>
                     [% ELSIF node.param.data_type == 'object' %]
-                        <p class="sysinfo-value">
-                            [% node.param.value %]
+                        <p class="sysinfo-value preformatted">
+                            [%- pretty_json(node.param.decoded_value) -%]
                         </p>
                     [% ELSE %]
                         <p class="sysinfo-value">
