@@ -93,20 +93,6 @@ sub list_params
     }
 }
 
-sub set_textarea_param
-	: Path('set_ta')
-	: Args(1)
-	: AppKitForm
-    : AppKitFeature('System Parameters')
-{
-	my $self  = shift;
-	my $c     = shift;
-	my $param = shift;
-
-    $c->stash->{template} = "modules/sysinfo/set_param.tt";
-    $self->set_param($c, $param);
-}
-
 sub set_param
 	: Path('set')
 	: Args(1)
@@ -116,108 +102,20 @@ sub set_param
 	my $self  = shift;
 	my $c     = shift;
 	my $name = shift;
-	my $form  = $c->stash->{form};
     my $param = $c->model('SysParams::SysInfo')->find({
         name => $name
     });
 
-    # this for ordering purposes.
-    my $data_types = $c->model('SysParams::SysInfo')
-        ->result_source
-        ->column_info('data_type')
-        ->{extra}
-        ->{list};
-
-    my %data_type_options = zip_by { @_ }
-        $data_types,
-        $c->model('SysParams::SysInfo')->result_source->column_info('data_type')->{extra}->{labels}
-    ;
-    my %actual_options = map { $_ => $data_type_options{$_} } @{ $param->viable_type_conversions };
-
-    $form->get_all_element({ name => 'data_type' })->options([
-        map { [$_ => $actual_options{$_}] } grep { exists $actual_options{$_} } @$data_types
-    ]);
-    $form->process;
-
-	my $return_url = $c->stash->{urls}{sys_info_list}->();
-
-	$form->default_values
-	({
-		name  => $name,
-        value => $param->decoded_value,
-        label => $param->label,
-        comment => $param->comment,
-        data_type => $param->data_type,
-	});
-
 	if ($c->req->param ('cancelbutton'))
 	{
 		$c->flash->{status_msg} = 'System Parameter not Changed';
-		$c->res->redirect ($return_url);
+		$c->res->redirect($c->stash->{urls}->{sys_info_list}->());
 		$c->detach;
 	}
 
-    $c->stash->{name} = $name;
-    $c->stash->{param} = $param;
-
-	if ($form->submitted_and_valid)
-	{
-		$c->model ('SysParams::SysInfo')->set ($param => $form->param_value ('value'));
-		$c->flash->{status_msg} = 'System Parameter Successfully Altered';
-		$c->res->redirect ($return_url);
-		$c->detach;
-	}
+    $self->_set_param($c, $param);
 }
 
-sub set_json_param
-	: Path('set_json')
-	: Args(1)
-	: AppKitForm('modules/sysinfo/set_param.yml')
-    : AppKitFeature('System Parameters')
-{
-	my $self  = shift;
-	my $c     = shift;
-	my $param = shift;
-	my $form  = $c->stash->{form};
-	my $value = $c->stash->{sys_params}->get_json ($param);
-
-	my $return_url = $c->stash->{urls}{sys_info_list}->();
-
-	$form->default_values
-	({
-		name  => $param,
-		value => $value
-	});
-
-	if ($c->req->param ('cancelbutton'))
-	{
-		$c->flash->{status_msg} = 'System Parameter not Changed';
-		$c->res->redirect ($return_url);
-		$c->detach;
-	}
-
-	if ($form->submitted_and_valid)
-	{
-        my $success = 0;
-        try
-        {
-            $c->stash->{sys_params}->set_json ($param => $form->param_value ('value'));
-            $c->flash->{status_msg} = 'System Parameter Successfully Altered';
-            $success = 1;
-        }
-        catch
-        {
-            $c->log->debug(__PACKAGE__ . '->set_json_param exception: ' . $_);
-            $form->get_field('value')->get_constraint({ type => 'Callback' })->force_errors(1);
-            $form->process;
-        };
-        if($success)
-        {
-            $c->res->redirect ($return_url);
-            $c->detach;
-        }
-	}
-}
 
 sub del_param
 	: Path('del')
