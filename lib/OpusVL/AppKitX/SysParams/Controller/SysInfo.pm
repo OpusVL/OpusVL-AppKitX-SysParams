@@ -247,8 +247,12 @@ sub _set_param {
             name => $c->req->param('name'),
             data_type => $type,
         };
-        if ($type and $type eq 'object') {
+        if ($type eq 'object') {
             $update->{value} = $c->req->params->{value_json};
+        }
+        elsif ($type eq 'boolean') {
+            my $tf = $c->req->params->{value} ? JSON->true : JSON->false;
+            $update->{value} = JSON->new->allow_nonref->encode($tf);
         }
         else {
             $update->{value} = JSON->new->allow_nonref->encode($c->req->params->{value});
