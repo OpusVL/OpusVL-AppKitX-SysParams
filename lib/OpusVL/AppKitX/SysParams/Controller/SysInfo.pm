@@ -230,7 +230,7 @@ sub del_param
 
 	my $return_url = $c->stash->{urls}{sys_info_list}->();
 
-	if ($c->req->param ('cancel'))
+	if ($c->req->param ('cancelbutton'))
 	{
 		$c->flash->{status_msg} = 'System Parameter Not Deleted';
 		$c->res->redirect ($return_url);
@@ -254,31 +254,30 @@ sub del_param
 sub new_param
 	: Path('new')
 	: Args(0)
-	: AppKitForm
+	: AppKitForm(modules/sysinfo/set_param.yml)
     : AppKitFeature('System Parameters')
 {
 	my $self  = shift;
 	my $c     = shift;
 	my $form  = $c->stash->{form};
-	
-	my $return_url = $c->stash->{urls}{sys_info_list}->();
 
 	if ($c->req->param ('cancelbutton'))
 	{
 		$c->flash->{status_msg} = 'System Parameter Not Set';
-		$c->res->redirect ($return_url);
+		$c->res->redirect($c->stash->{urls}{sys_info_list}->());
 		$c->detach;
 	}
+	
+    $form->get_all_element('name')->type('Text');
+    $form->process;
+    $self->_set_param($c, $c->model('SysParams::SysInfo')->new_result({}));
+    $c->stash->{template} = 'modules/sysinfo/set_param.tt';
 
-	if ($form->submitted_and_valid)
-	{
-		my $name  = $form->param_value ('name');
-		my $value = $form->param_value ('value');
-		$c->model ('SysParams::SysInfo')->set ($name => $value);
-		$c->flash->{status_msg} = 'System Parameter Successfully Created';
-		$c->res->redirect ($return_url);
-		$c->detach;
-	}
+    if ($form->submitted_and_valid) {
+        $c->flash->{status_msg} = 'System Parameter Successfully Created';
+        $c->res->redirect($c->stash->{urls}{sys_info_list}->());
+        $c->detach;
+    }
 }
 
 sub set_comment
@@ -309,6 +308,81 @@ sub set_comment
 		$c->res->redirect($return_url);
 		$c->detach;
     }
+}
+
+sub _set_param {
+    my ($self, $c, $param) = @_;
+
+    my $form = $c->stash->{form};
+
+    # this for ordering purposes.
+    my $data_types = $c->model('SysParams::SysInfo')
+        ->result_source
+        ->column_info('data_type')
+        ->{extra}
+        ->{list};
+
+    my %data_type_options = zip_by { @_ }
+        $data_types,
+        $c->model('SysParams::SysInfo')->result_source->column_info('data_type')->{extra}->{labels}
+    ;
+    my %actual_options = map { $_ => $data_type_options{$_} } @{ $param->viable_type_conversions };
+
+    $form->get_all_element({ name => 'data_type' })->options([
+        map { [$_ => $actual_options{$_}] } grep { exists $actual_options{$_} } @$data_types
+    ]);
+    $form->process;
+
+	my $return_url = $c->stash->{urls}{sys_info_list}->();
+
+	if ($form->submitted_and_valid)
+	{
+        my $type = $c->req->param('data_type');
+
+        my $update = {
+            name => $c->req->param('name'),
+            data_type => $type,
+        };
+        if ($type and $type eq 'object') {
+            $update->{value} = $c->req->params->{value_json};
+        }
+        else {
+            $update->{value} = JSON->new->allow_nonref->encode($c->req->params->{value});
+        }
+        $param->set_columns($update);
+
+        my $updated_ok = try {
+            if ($param->in_storage) {
+                $param->update;
+            }
+            else {
+                $param->insert;
+            }
+            1;
+        }
+        catch {
+            $c->log->debug(__PACKAGE__ . '->set_json_param exception: ' . $_);
+            $form->get_field('value')->get_constraint({ type => 'Callback' })->force_errors(1);
+            $form->process;
+            0;
+        };
+
+        return if $updated_ok;
+	}
+
+	$form->default_values
+	({
+		name  => $param->name,
+        value => scalar $param->decoded_value,
+        label => $param->label,
+        comment => $param->comment,
+        data_type => $param->data_type // 'text',
+	});
+
+    $c->stash->{param} = $param;
+    $c->stash->{pretty_json} = sub {
+        JSON->new->allow_nonref->pretty->ascii(0)->encode($_[0]);
+    };
 }
 
 1;

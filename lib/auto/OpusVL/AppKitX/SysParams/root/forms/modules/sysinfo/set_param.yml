@@ -5,17 +5,17 @@ elements:
   - type: Fieldset
     elements:
 
-      - type: Label
-        label: Parameter
-        force_default: 1
+      - type: Text
+        label: Parameter *
         name: name
+        required: 1
 
       - type: Text
         label: Label
         name: label
  
       - type: Text
-        label: Value
+        label: Value *
         name: value
         constraints:
           type: Callback
