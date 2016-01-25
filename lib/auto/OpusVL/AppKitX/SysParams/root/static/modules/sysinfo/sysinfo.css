@@ -2,6 +2,7 @@
     border: 1px solid #aaa;
     margin-top: 0.2em;
     margin-bottom: 0.2em;
+    clear: both;
 }
 
 .sysinfo-group .sysinfo-group {
@@ -12,15 +13,21 @@
     padding: 0 0 0 2em;
 }
 
+.sysinfo-row + .sysinfo-group {
+    margin-top: 1em;
+}
+
 .sysinfo-data {
     padding-left: 2%;
     padding-bottom: 0.4%;
+    clear: both;
 }
 
 .sysinfo-data > p, .sysinfo-data > div {
     display: inline-block;
     margin: 0;
     vertical-align: top;
+    line-height: 2em;
 }
 
 .sysinfo-data ul {
@@ -28,7 +35,9 @@
 }
 
 .sysinfo-buttons {
-    text-align: right;
+    float: right;
+    white-space: nowrap;
+    padding: 0.2em;
 }
 
 p.sysinfo-parameter {
