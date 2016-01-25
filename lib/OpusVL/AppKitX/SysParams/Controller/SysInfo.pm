@@ -114,6 +114,10 @@ sub set_param
 	}
 
     $self->_set_param($c, $param);
+
+    $c->flash->{status_msg} = 'System Parameter Successfully Created';
+    $c->res->redirect($c->stash->{urls}{sys_info_list}->());
+    $c->detach;
 }
 
 
@@ -171,14 +175,13 @@ sub new_param
 	
     $form->get_all_element('name')->type('Text');
     $form->process;
-    $self->_set_param($c, $c->model('SysParams::SysInfo')->new_result({}));
     $c->stash->{template} = 'modules/sysinfo/set_param.tt';
 
-    if ($form->submitted_and_valid) {
-        $c->flash->{status_msg} = 'System Parameter Successfully Created';
-        $c->res->redirect($c->stash->{urls}{sys_info_list}->());
-        $c->detach;
-    }
+    $self->_set_param($c, $c->model('SysParams::SysInfo')->new_result({}));
+
+    $c->flash->{status_msg} = 'System Parameter Successfully Created';
+    $c->res->redirect($c->stash->{urls}{sys_info_list}->());
+    $c->detach;
 }
 
 sub set_comment
@@ -284,6 +287,7 @@ sub _set_param {
     $c->stash->{pretty_json} = sub {
         JSON->new->allow_nonref->pretty->ascii(0)->encode($_[0]);
     };
+    $c->detach;
 }
 
 1;
