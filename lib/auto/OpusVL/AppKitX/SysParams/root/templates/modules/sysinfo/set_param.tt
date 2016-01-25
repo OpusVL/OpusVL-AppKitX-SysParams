@@ -25,7 +25,9 @@
             [% TRY; FOREACH item IN param.convert_to('array') %]
                 <input type="text" value="[% item %]" name="value"
                 class="field-value-[% loop.index %] array-value" />
+                <i class="fa fa-remove remove"></i>
             [% END; CATCH; END %]
+            <input type="text" class="field-value-new array-value"/>
         </span>
     </div>
 </div>
