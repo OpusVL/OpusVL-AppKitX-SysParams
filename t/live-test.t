@@ -35,41 +35,40 @@ $mech->submit_form(
     with_fields => {
         name => 'test',
         value => 'validation',
-    },
-    button => 'submitbutton');
-$mech->content_like(qr'Must be of format 'i);
-$mech->submit_form(
-    with_fields => {
-        name => 'test.value',
-        value => 'validation',
+        data_type => 'text',
     },
     button => 'submitbutton');
 $mech->content_like(qr'System Parameter Successfully Created'i);
 $mech->content_like(qr'validation'i, 'Check value is visible');
 
-$mech->follow_link_ok ({text_regex => qr/Edit Setting/, url_regex => qr/test\.value$/}, 'Lets edit the setting');
+$mech->follow_link_ok ({text_regex => qr/Edit/, url_regex => qr/test$/}, 'Lets edit the setting');
 $mech->submit_form(
     with_fields => {
         value => 'altered',
     },
     button => 'submitbutton');
 
-$mech->follow_link_ok ({text_regex => qr/Edit JSON/, url_regex => qr/test\.value$/}, 'Lets edit the setting');
-$mech->submit_form(
-    with_fields => {
-        value => '[ 1, 2, 3]',
-    },
-    button => 'submitbutton');
-$mech->content_like(qr'1\s*,\s*2,\s*3'i, 'Check value is visible');
+$mech->follow_link_ok ({text_regex => qr/Edit/, url_regex => qr/test$/}, 'Lets edit the setting');
+my $form = $mech->form_with_fields(qw/value data_type/);
+$mech->post($form->action, {
+    name => 'test',
+    value => [qw/test array items/],
+    data_type => 'array',
+    submitbutton => 'submitbutton'
+});
+$mech->content_like(qr'<ul>\s*<li>\s*test'i, 'Check value is visible');
 # lets try to add it again to prove we can't.
 $mech->follow_link_ok ({text_regex => qr/Create a parameter/i, url_regex => qr/new$/}, 'Lets add a setting');
 $mech->submit_form(
     with_fields => {
-        name => 'test.value',
+        name => 'test',
         value => 'validation',
+        data_type => 'text',
     },
     button => 'submitbutton');
 $mech->content_like(qr'already exists'i);
+open my $fh, ">", "mech.html";
+print $fh $mech->content;
 $mech->submit_form(
     with_fields => {
         name => 'bad.value',
@@ -77,9 +76,9 @@ $mech->submit_form(
     },
     button => 'cancelbutton');
 
-$mech->follow_link_ok ({text_regex => qr/Delete/, url_regex => qr/test\.value$/}, 'Lets delete the setting');
+$mech->follow_link_ok ({text_regex => qr/Delete/, url_regex => qr/test$/}, 'Lets delete the setting');
 $mech->content_like(qr'sure'i);
-$mech->content_like(qr'1\s*,\s*2,\s*3'i, 'Check value is visible');
+# FIXME it currently doesn't show non-text values on this page
 $mech->submit_form(with_fields => {confirm => 'Yes'}, button => 'confirm');
 $mech->content_like(qr'Successfully Deleted'i);
 

@@ -243,9 +243,10 @@ sub _set_param {
 	if ($form->submitted_and_valid)
 	{
         my $type = $c->req->param('data_type');
+        my $name = $c->req->param('name');
 
         my $update = {
-            name => $c->req->param('name'),
+            name => $name,
             data_type => $type,
         };
         if ($type eq 'object') {
@@ -271,7 +272,13 @@ sub _set_param {
         }
         catch {
             $c->log->debug(__PACKAGE__ . '->set_json_param exception: ' . $_);
-            $form->get_field('value')->get_constraint({ type => 'Callback' })->force_errors(1);
+
+            if (/UNIQUE/) {
+                $c->stash->{error_msg} = "Parameter $name already exists";
+            }
+            else {
+                $form->get_field('value')->get_constraint({ type => 'Callback' })->force_errors(1);
+            }
             $form->process;
             0;
         };
