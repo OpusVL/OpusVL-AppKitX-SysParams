@@ -14,7 +14,7 @@ requires 'OpusVL::AppKit';
 requires 'OpusVL::SysParams';
 requires 'JSON::MaybeXS';
 requires 'List::UtilsBy';
-requires 'Data::Elem';
+requires 'Data::Munge';
 
 build_requires 'Catalyst::Runtime' => '5.80015';
 build_requires 'Test::WWW::Mechanize::Catalyst';
