@@ -4,9 +4,35 @@
 	[% form.render | none %]
 
     <div class="templates">
-        <textarea name="value" class="js-value-multi">[% value %]</textarea>
-        <textarea name="value_json" class="js-value-json">[% value_raw %]</textarea>
-        <input type="text" name="value" class="js-value-string" value="[% value %]"/>
+        <textarea name="value" class="js-value-textarea">[%
+            TRY;
+            param.convert_to('textarea');
+            CATCH;
+            END;
+        %]</textarea>
+        <textarea name="value_json" class="js-value-raw">
+            [%- pretty_json(param.decoded_value) -%]
+        </textarea>
+        <input type="text" name="value" class="js-value-text" value="[%
+            TRY;
+            param.convert_to('text');
+            CATCH;
+            END;
+        %]"/>
+        <input type="checkbox" name="value" class="js-value-boolean"
+            [% TRY;
+                IF param.convert_to('boolean') %] 
+                checked="checked" 
+            [% END; CATCH; END %] 
+        />
+        <span class="js-value-array">
+            [% TRY; FOREACH item IN param.convert_to('array') %]
+                <input type="text" value="[% item %]" name="value"
+                class="field-value-[% loop.index %] array-value" />
+                <i class="fa fa-remove remove"></i>
+            [% END; CATCH; END %]
+            <input type="text" class="field-value-new array-value"/>
+        </span>
     </div>
 </div>
 

@@ -5,38 +5,33 @@ elements:
   - type: Fieldset
     elements:
 
-      - type: Label
-        label: Parameter
-        force_default: 1
+      - type: Text
+        label: Parameter *
         name: name
+        required: 1
 
-      - type: Radiogroup
-        label: "Type"
-        name: type
-        options:
-          - value: 'string'
-            label: "Simple text"
-            label_attributes:
-              title: "Simple text"
-          - value: 'multi'
-            label: "Multi"
-            label_attributes:
-                title: "Multi-line text"
-          - value: 'json'
-            label: "Json"
-            label_attributes:
-                title: "Raw JSON"
-        attributes:
-          class: field field-type
+      - type: Text
+        label: Label
+        name: label
  
       - type: Text
-        label: Value
+        label: Value *
         name: value
         constraints:
           type: Callback
           message: 'Invalid value'
         attributes:
           class: field field-value
+
+      - type: Radiogroup
+        label: "Type"
+        name: data_type
+        attributes:
+          class: field field-type
+
+      - type: Text
+        label: Comment
+        name: comment
 
   - type: Submit
     name: submitbutton

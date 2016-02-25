@@ -6,7 +6,7 @@ use namespace::autoclean;
 use OpusVL::SysParams;
 use Try::Tiny;
 use JSON::MaybeXS;
-
+use List::UtilsBy qw/zip_by/;
 
 BEGIN { extends 'Catalyst::Controller::HTML::FormFu'; }
 with 'OpusVL::AppKit::RolesFor::Controller::GUI';
@@ -64,25 +64,34 @@ sub list_params
 	my $c    = shift;
 	
     my $grouped = $c->config->{'Model::SysParams'}->{group_sysparams};
-	$c->stash->{sys_info} = $c->model('SysParams::SysInfo')->list($grouped);
+	$c->stash->{sys_info} = $c->model('SysParams::SysInfo')->ordered;
 
     if ($grouped) {
+        my $groups = {};
+        for my $setting ($c->stash->{sys_info}->all) {
+            my @path = split /\./, $setting->name;
+            my $node = $groups;
+
+            while (@path) {
+                my $name = shift @path;
+                my $path = $node->{path} || '';
+                $node->{children}->{$name} //= {};
+
+                $node = $node->{children}->{$name};
+                $node->{path} ||= join '.', grep {$_} $path, $name;
+            }
+
+            $node->{param}   = $setting;
+        }
+
+        $c->stash->{sys_info} = $groups;
+    
         $c->stash->{template} = 'modules/sysinfo/list_params_grouped.tt';
     }
-}
 
-sub set_textarea_param
-	: Path('set_ta')
-	: Args(1)
-	: AppKitForm
-    : AppKitFeature('System Parameters')
-{
-	my $self  = shift;
-	my $c     = shift;
-	my $param = shift;
-
-    $c->stash->{template} = "modules/sysinfo/set_param.tt";
-    $self->set_param($c, $param);
+    $c->stash->{pretty_json} = sub {
+        JSON->new->pretty->ascii(0)->encode($_[0]);
+    };
 }
 
 sub set_param
@@ -94,133 +103,24 @@ sub set_param
 	my $self  = shift;
 	my $c     = shift;
 	my $name = shift;
-	my $form  = $c->stash->{form};
     my $param = $c->model('SysParams::SysInfo')->find({
         name => $name
     });
 
-	my $return_url = $c->stash->{urls}{sys_info_list}->();
-
-	$form->default_values
-	({
-		name  => $name,
-        value => $param->value,
-        type  => 'string'
-	});
-
 	if ($c->req->param ('cancelbutton'))
 	{
 		$c->flash->{status_msg} = 'System Parameter not Changed';
-		$c->res->redirect ($return_url);
+		$c->res->redirect($c->stash->{urls}->{sys_info_list}->());
 		$c->detach;
 	}
 
-    $c->stash->{name} = $name;
-    $c->stash->{value} = $param->value;
-    $c->stash->{value_raw} = $param->raw_value;
+    $self->_set_param($c, $param);
 
-	if ($form->submitted_and_valid)
-	{
-        my $type = $c->req->param('type');
-
-        my $update = {};
-        if ($type and $type eq 'json') {
-            $update->{value_raw} = $c->req->params->{value_json};
-        }
-        else {
-            $update->{value} = $c->req->params->{'value'};
-        }
-        my $updated_ok = try {
-            $param->update($update);
-            1;
-        }
-        catch {
-            $c->log->debug(__PACKAGE__ . '->set_json_param exception: ' . $_);
-            $form->get_field('value')->get_constraint({ type => 'Callback' })->force_errors(1);
-            $form->process;
-            0;
-        };
-        
-        if ($updated_ok) {
-            $c->flash->{status_msg} = 'System Parameter Successfully Altered';
-            $c->res->redirect($return_url);
-            $c->detach;
-        }
-	}
-
-    if ($form->submitted) {
-        my $type = $c->req->param('type');
-        if ($type and $type eq 'json') {
-            # If the value is either invalid JSON or a JSON object, we cannot
-            # represent it as a plain value.
-            $c->stash->{value} = 
-                try {
-                    JSON->new->allow_nonref->decode(
-                        $c->req->param('value_json')
-                    );
-                }
-                catch { '' };
-            $c->stash->{value} = '' if ref $c->stash->{value};
-            $c->stash->{value_raw} = $c->req->param('value_json')
-        }
-        else {
-            $c->stash->{value_raw} = JSON->new->allow_nonref->encode(
-                $c->req->param('value')
-            );
-            $c->stash->{value} = $c->req->param('value');
-        }
-    }
+    $c->flash->{status_msg} = 'System Parameter Successfully Created';
+    $c->res->redirect($c->stash->{urls}{sys_info_list}->());
+    $c->detach;
 }
 
-sub set_json_param
-	: Path('set_json')
-	: Args(1)
-	: AppKitForm('modules/sysinfo/set_param.yml')
-    : AppKitFeature('System Parameters')
-{
-	my $self  = shift;
-	my $c     = shift;
-	my $param = shift;
-	my $form  = $c->stash->{form};
-	my $value = $c->stash->{sys_params}->get_json ($param);
-
-	my $return_url = $c->stash->{urls}{sys_info_list}->();
-
-	$form->default_values
-	({
-		name  => $param,
-		value => $value
-	});
-
-	if ($c->req->param ('cancelbutton'))
-	{
-		$c->flash->{status_msg} = 'System Parameter not Changed';
-		$c->res->redirect ($return_url);
-		$c->detach;
-	}
-
-	if ($form->submitted_and_valid)
-	{
-        my $success = 0;
-        try
-        {
-            $c->stash->{sys_params}->set_json ($param => $form->param_value ('value'));
-            $c->flash->{status_msg} = 'System Parameter Successfully Altered';
-            $success = 1;
-        }
-        catch
-        {
-            $c->log->debug(__PACKAGE__ . '->set_json_param exception: ' . $_);
-            $form->get_field('value')->get_constraint({ type => 'Callback' })->force_errors(1);
-            $form->process;
-        };
-        if($success)
-        {
-            $c->res->redirect ($return_url);
-            $c->detach;
-        }
-	}
-}
 
 sub del_param
 	: Path('del')
@@ -236,7 +136,7 @@ sub del_param
 
 	my $return_url = $c->stash->{urls}{sys_info_list}->();
 
-	if ($c->req->param ('cancel'))
+	if ($c->req->param ('cancelbutton'))
 	{
 		$c->flash->{status_msg} = 'System Parameter Not Deleted';
 		$c->res->redirect ($return_url);
@@ -260,31 +160,29 @@ sub del_param
 sub new_param
 	: Path('new')
 	: Args(0)
-	: AppKitForm
+	: AppKitForm(modules/sysinfo/set_param.yml)
     : AppKitFeature('System Parameters')
 {
 	my $self  = shift;
 	my $c     = shift;
 	my $form  = $c->stash->{form};
-	
-	my $return_url = $c->stash->{urls}{sys_info_list}->();
 
 	if ($c->req->param ('cancelbutton'))
 	{
 		$c->flash->{status_msg} = 'System Parameter Not Set';
-		$c->res->redirect ($return_url);
+		$c->res->redirect($c->stash->{urls}{sys_info_list}->());
 		$c->detach;
 	}
+	
+    $form->get_all_element('name')->type('Text');
+    $form->process;
+    $c->stash->{template} = 'modules/sysinfo/set_param.tt';
 
-	if ($form->submitted_and_valid)
-	{
-		my $name  = $form->param_value ('name');
-		my $value = $form->param_value ('value');
-		$c->model ('SysParams::SysInfo')->set ($name => $value);
-		$c->flash->{status_msg} = 'System Parameter Successfully Created';
-		$c->res->redirect ($return_url);
-		$c->detach;
-	}
+    $self->_set_param($c, $c->model('SysParams::SysInfo')->new_result({}));
+
+    $c->flash->{status_msg} = 'System Parameter Successfully Created';
+    $c->res->redirect($c->stash->{urls}{sys_info_list}->());
+    $c->detach;
 }
 
 sub set_comment
@@ -315,6 +213,93 @@ sub set_comment
 		$c->res->redirect($return_url);
 		$c->detach;
     }
+}
+
+sub _set_param {
+    my ($self, $c, $param) = @_;
+
+    my $form = $c->stash->{form};
+
+    # this for ordering purposes.
+    my $data_types = $c->model('SysParams::SysInfo')
+        ->result_source
+        ->column_info('data_type')
+        ->{extra}
+        ->{list};
+
+    my %data_type_options = zip_by { @_ }
+        $data_types,
+        $c->model('SysParams::SysInfo')->result_source->column_info('data_type')->{extra}->{labels}
+    ;
+    my %actual_options = map { $_ => $data_type_options{$_} } @{ $param->viable_type_conversions };
+
+    $form->get_all_element({ name => 'data_type' })->options([
+        map { [$_ => $actual_options{$_}] } grep { exists $actual_options{$_} } @$data_types
+    ]);
+    $form->process;
+
+	my $return_url = $c->stash->{urls}{sys_info_list}->();
+
+	if ($form->submitted_and_valid)
+	{
+        my $type = $c->req->param('data_type');
+        my $name = $c->req->param('name');
+
+        my $update = {
+            name => $name,
+            data_type => $type,
+        };
+        if ($type eq 'object') {
+            $update->{value} = $c->req->params->{value_json};
+        }
+        elsif ($type eq 'boolean') {
+            my $tf = $c->req->params->{value} ? JSON->true : JSON->false;
+            $update->{value} = JSON->new->allow_nonref->encode($tf);
+        }
+        else {
+            $update->{value} = JSON->new->allow_nonref->encode($c->req->params->{value});
+        }
+        $param->set_columns($update);
+
+        my $updated_ok = try {
+            if ($param->in_storage) {
+                $param->update;
+            }
+            else {
+                $param->insert;
+            }
+            1;
+        }
+        catch {
+            $c->log->debug(__PACKAGE__ . '->set_json_param exception: ' . $_);
+
+            if (/UNIQUE/) {
+                $c->stash->{error_msg} = "Parameter $name already exists";
+            }
+            else {
+                $form->get_field('value')->get_constraint({ type => 'Callback' })->force_errors(1);
+            }
+            $form->process;
+            0;
+        };
+
+        return if $updated_ok;
+	}
+
+	$form->default_values
+	({
+		name  => $param->name,
+        value => scalar $param->decoded_value,
+        label => $param->label,
+        comment => $param->comment,
+        data_type => $param->data_type // 'text',
+	});
+
+    $c->stash->{param} = $param;
+    $c->stash->{pretty_json} = sub {
+        JSON->new->allow_nonref->pretty->ascii(0)->encode($_[0]);
+    };
+    $c->detach;
 }
 
 1;
