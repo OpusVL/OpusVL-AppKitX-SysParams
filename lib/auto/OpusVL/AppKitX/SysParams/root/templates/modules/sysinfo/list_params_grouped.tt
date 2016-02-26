@@ -61,7 +61,9 @@
                         </p>
                     [% ELSE %]
                         <p class="sysinfo-value">
-                            [% node.param.convert_to('textarea') %]
+                            [% TRY %]
+                                [% node.param.convert_to('textarea') %]
+                            [% CATCH %][% END %]
                         </p>
                     [% END %]
 
