@@ -1,3 +1,13 @@
+This file documents the revision history for Perl extension OpusVL::AppKit.
+
+{{ $NEXT }}
+
+0.22      2016-03-12 10:23:02+00:00 Europe/London
+
+    - Converted to dist::zilla.
+    - Support new OpusVL::SysParams with changes to data model.
+    - New display and editing features with notional 'types'.
+
 0.03    Added validation to prevent the inadvertent editing of parameters by 
         entering the same setting name when adding a setting.
 0.02    Made UI use AppKit standards.  Added delete option and json set method.
