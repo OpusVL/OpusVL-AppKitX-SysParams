@@ -1,4 +1,5 @@
 cover_db
+.build
 META.yml
 tags
 *.swp
