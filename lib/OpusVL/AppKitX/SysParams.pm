@@ -39,7 +39,7 @@ after 'setup_components' => sub {
 
 =head1 NAME
 
-OpusVL::AppKitX::SysParams - 
+OpusVL::AppKitX::SysParams - UI for SysParams.
 
 =head1 DESCRIPTION
 
