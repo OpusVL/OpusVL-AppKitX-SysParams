@@ -273,7 +273,7 @@ sub _set_param {
         catch {
             $c->log->debug(__PACKAGE__ . '->set_json_param exception: ' . $_);
 
-            if (/UNIQUE/) {
+            if (/UNIQUE/i) {
                 $c->stash->{error_msg} = "Parameter $name already exists";
             }
             else {
