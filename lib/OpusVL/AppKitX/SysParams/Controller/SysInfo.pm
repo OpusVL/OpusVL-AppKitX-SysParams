@@ -327,6 +327,8 @@ OpusVL::AppKitX::SysParams::Controller::SysInfo
 
 =head2 new_param
 
+=head2 set_comment
+
 =head1 ATTRIBUTES
 
 
