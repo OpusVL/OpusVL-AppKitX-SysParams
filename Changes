@@ -2,6 +2,11 @@ This file documents the revision history for Perl extension OpusVL::AppKit.
 
 {{ $NEXT }}
 
+0.23      2016-03-12 10:31:13+00:00 Europe/London
+
+    - Fixed unique check so it should work with more versions of SQLite
+    - Fixed packaging error.
+
 0.22      2016-03-12 10:23:02+00:00 Europe/London
 
     - Converted to dist::zilla.
