@@ -2,6 +2,11 @@ This file documents the revision history for Perl extension OpusVL::AppKit.
 
 {{ $NEXT }}
 
+0.25      2016-03-14 12:55:59+00:00 Europe/London
+
+    - Added tooltips to datatype selector.
+    - Fixed bug preventing menu from working.
+
 0.24      2016-03-12 10:47:30+00:00 Europe/London
 
     - Corrected version of dependency
