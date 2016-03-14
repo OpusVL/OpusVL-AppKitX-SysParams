@@ -234,7 +234,12 @@ sub _set_param {
     my %actual_options = map { $_ => $data_type_options{$_} } @{ $param->viable_type_conversions };
 
     $form->get_all_element({ name => 'data_type' })->options([
-        map { [$_ => $actual_options{$_}] } grep { exists $actual_options{$_} } @$data_types
+        map { +{
+            value => $_,
+            label => $actual_options{$_},
+            label_attributes => { title => $actual_options{$_} }
+        } } 
+        grep { exists $actual_options{$_} } @$data_types
     ]);
     $form->process;
 
