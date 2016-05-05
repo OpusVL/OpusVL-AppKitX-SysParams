@@ -291,6 +291,10 @@ sub _set_param {
         return if $updated_ok;
 	}
 
+    # Make sure a suitable type is available, for old entries
+    $param->set_type_from_value
+        if ! $param->data_type;
+
 	$form->default_values
 	({
 		name  => $param->name,
