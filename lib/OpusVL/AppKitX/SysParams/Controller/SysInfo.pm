@@ -293,7 +293,8 @@ sub _set_param {
 
     # Make sure a suitable type is available, for old entries
     $param->set_type_from_value
-        if ! $param->data_type;
+        if ! $param->data_type
+        and defined $param->value;
 
 	$form->default_values
 	({
