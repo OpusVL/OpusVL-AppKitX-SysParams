@@ -116,7 +116,7 @@ sub set_param
 
     $self->_set_param($c, $param);
 
-    $c->flash->{status_msg} = 'System Parameter Successfully Updated';
+    $c->flash->{status_msg} = 'System Parameter Successfully Altered';
     $c->res->redirect($c->stash->{urls}{sys_info_list}->());
     $c->detach;
 }
