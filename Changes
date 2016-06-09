@@ -2,6 +2,10 @@ This file documents the revision history for Perl extension OpusVL::AppKit.
 
 {{ $NEXT }}
 
+0.28      2016-06-09 12:02:43+01:00 Europe/London
+
+    - Fixed saving of comments and labels
+
 0.27      2016-06-09 11:16:58+01:00 Europe/London
 
     - Fixes to handling of data types, particularly when not set
