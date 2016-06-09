@@ -247,22 +247,24 @@ sub _set_param {
 
 	if ($form->submitted_and_valid)
 	{
-        my $type = $c->req->param('data_type');
-        my $name = $c->req->param('name');
+        my $type = $c->req->body_params->{'data_type'};
+        my $name = $c->req->body_params->{'name'};
 
         my $update = {
             name => $name,
             data_type => $type,
+            label => $c->req->body_params->{'label'},
+            comment => $c->req->body_params->{'comment'},
         };
         if ($type eq 'object') {
-            $update->{value} = $c->req->params->{value_json};
+            $update->{value} = $c->req->body_params->{value_json};
         }
         elsif ($type eq 'boolean') {
-            my $tf = $c->req->params->{value} ? JSON->true : JSON->false;
+            my $tf = $c->req->body_params->{value} ? JSON->true : JSON->false;
             $update->{value} = JSON->new->allow_nonref->encode($tf);
         }
         else {
-            $update->{value} = JSON->new->allow_nonref->encode($c->req->params->{value});
+            $update->{value} = JSON->new->allow_nonref->encode($c->req->body_params->{value});
         }
         $param->set_columns($update);
 
