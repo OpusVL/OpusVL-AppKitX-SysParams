@@ -36,6 +36,7 @@ sub auto
     };
 
     push @{$c->stash->{header}->{css}}, '/static/modules/sysinfo/sysinfo.css';
+    push @{$c->stash->{header}->{css}}, '/static/modules/sysinfo/fontawesome/font-awesome.min.css';
     push @{$c->stash->{header}->{js}}, '/static/modules/sysinfo/sysinfo.js';
     my $schema = $c->model('SysParams')->schema;
     $c->stash->{sys_params} = OpusVL::SysParams->new({ schema => $schema });
