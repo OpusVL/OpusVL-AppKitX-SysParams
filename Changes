@@ -2,6 +2,11 @@ This file documents the revision history for Perl extension OpusVL::AppKit.
 
 {{ $NEXT }}
 
+0.29      2016-11-01 12:47:25+00:00 Europe/London
+
+    - Added fontawesome files to this version, since AppKit doesn't have it by
+      default
+
 0.28      2016-06-09 12:02:43+01:00 Europe/London
 
     - Fixed saving of comments and labels
