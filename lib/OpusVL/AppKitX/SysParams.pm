@@ -3,6 +3,7 @@ use Moose::Role;
 use CatalystX::InjectComponent;
 use File::ShareDir qw/module_dir/;
 use namespace::autoclean;
+use experimental 'smartmatch';
 
 our $VERSION = '0.30';
 
